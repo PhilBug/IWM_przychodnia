@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-
+import json
 import logging
 from fhirclient import client
 from fhirclient.models.medication import Medication
 from fhirclient.models.medicationrequest import MedicationRequest
-
+import fhirclient.models.patient as pat
+import fhirclient.models.procedure as proc
 from flask import Flask, request, redirect, session
 
 # app setup
 smart_defaults = {
     'app_id': 'my_web_app',
-    'api_base': 'https://sb-fhir-stu3.smarthealthit.org/smartstu3/data',
+    'api_base': 'http://localhost:8080/baseDstu3/',
     'redirect_uri': 'http://localhost:8000/fhir-app/',
 }
 
@@ -21,6 +22,7 @@ def _save_state(state):
 
 def _get_smart():
     state = session.get('state')
+    print("State: ", state)
     if state:
         return client.FHIRClient(state=state, save_func=_save_state)
     else:
@@ -65,34 +67,26 @@ def _get_med_name(prescription, client=None):
     else:
         return 'Error: medication not found'
 
-# views
 
 @app.route('/')
 @app.route('/index.html')
 def index():
-    """ The app's main page.
-    """
     smart = _get_smart()
     body = "<h1>Hello</h1>"
-    
-    if smart.ready and smart.patient is not None:       # "ready" may be true but the access token may have expired, making smart.patient = None
-        name = smart.human_name(smart.patient.name[0] if smart.patient.name and len(smart.patient.name) > 0 else 'Unknown')
-        
-        # generate simple body text
-        body += "<p>You are authorized and ready to make API requests for <em>{0}</em>.</p>".format(name)
-        pres = _get_prescriptions(smart)
-        if pres is not None:
-            body += "<p>{0} prescriptions: <ul><li>{1}</li></ul></p>".format("His" if 'male' == smart.patient.gender else "Her", '</li><li>'.join([_get_med_name(p,smart) for p in pres]))
-        else:
-            body += "<p>(There are no prescriptions for {0})</p>".format("him" if 'male' == smart.patient.gender else "her")
-        body += """<p><a href="/logout">Change patient</a></p>"""
-    else:
-        auth_url = smart.authorize_url
-        if auth_url is not None:
-            body += """<p>Please <a href="{0}">authorize</a>.</p>""".format(auth_url)
-        else:
-            body += """<p>Running against a no-auth server, nothing to demo here. """
-        body += """<p><a href="/reset" style="font-size:small;">Reset</a></p>"""
+    patient = pat.Patient.read('06eb35fc-09e6-48b4-a311-47633f6c4769', smart.server)
+    while not smart.ready:
+        pass
+
+    print(smart.ready, smart.patient)
+    body += "<p>Name: {0}</p>".format(smart.human_name(patient.name[0]))
+    body += "<p>Gender: {0}</p>".format(patient.gender)
+
+    # search = pat.Patient.where(struct={'gender': 'male'})
+    # procedures = search.perform_resources(smart.server)
+    # for procedure in procedures:
+    #     your_json = procedure.as_json()
+    #     print(json.dumps(your_json, indent=2, sort_keys=True))
+    #     body += "<p>{0}</p>".format(json.dumps(your_json, indent=2, sort_keys=True))
     return body
 
 
