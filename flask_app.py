@@ -87,6 +87,7 @@ def index():
         your_json = procedure.as_json()
         #body += "<p>{0}</p>".format(json.dumps(your_json, indent=2, sort_keys=True))
         body += "<p>Patient: {0} {1}</p>".format(your_json['name'][0]['given'][0], your_json['name'][0]['family'])
+        body += "<p>Patient: {0} {1}</p>".format(procedure.na)
     return body
 
 
