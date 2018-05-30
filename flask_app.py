@@ -72,8 +72,9 @@ def _get_med_name(prescription, client=None):
 @app.route('/index.html')
 def index():
     smart = _get_smart()
-    body = "<h1>Portal medyczny Jerzego Zięby</h1>"
-    body = "<h2>Lista ofiar szczepionek:</h2>"
+    body = ''
+    body += "<h1>Portal medyczny Jerzego Zięby</h1>"
+    body += "<h2>Lista ofiar szczepionek:</h2>"
     patient = pat.Patient.read('06eb35fc-09e6-48b4-a311-47633f6c4769', smart.server)
     # while not smart.ready:
     #     pass
