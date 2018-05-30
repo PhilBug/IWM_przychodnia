@@ -73,6 +73,7 @@ def _get_med_name(prescription, client=None):
 def index():
     smart = _get_smart()
     body = "<h1>Portal medyczny Jerzego Zięby</h1>"
+    body = "<h2>Lista ofiar szczepionek:</h2>"
     patient = pat.Patient.read('06eb35fc-09e6-48b4-a311-47633f6c4769', smart.server)
     # while not smart.ready:
     #     pass
@@ -84,10 +85,10 @@ def index():
     search = pat.Patient.where(struct={'gender': 'male'})
     procedures = search.perform_resources(smart.server)
     for procedure in procedures:
-        your_json = procedure.as_json()
+        #your_json = procedure.as_json()
         #body += "<p>{0}</p>".format(json.dumps(your_json, indent=2, sort_keys=True))
-        body += "<p>Patient: {0} {1}</p>".format(your_json['name'][0]['given'][0], your_json['name'][0]['family'])
-        body += "<p>Patient: {0} {1}</p>".format(procedure.na)
+        #body += "<p>Patient: {0} {1}</p>".format(your_json['name'][0]['given'][0], your_json['name'][0]['family'])
+        body += "<p>Patient: {0} {1}</p>".format(procedure.name[0].family, procedure.name[0].given[0])
     return body
 
 
