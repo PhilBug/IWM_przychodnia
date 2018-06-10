@@ -97,12 +97,13 @@ def index():
             passed_patients.append({
                 'name': patient.name[0].family,
                 'surname': patient.name[0].given[0],
-                'procedures': [{
+                'procedures': sorted([{
                     'name': p.extension[0].valueCodeableConcept.coding[0].display,
                     'startDate': resolveData(p)[0],
                     'type': resolveData(p)[1],
                     'id': p.id
-                } for p in procedures]
+                } for p in procedures],
+                    key=lambda k: k['startDate'])
             })
             for p in procedures:
                 print(p.as_json())
