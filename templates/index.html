@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+<link rel="stylesheet" href="{{url_for('static', filename='css/landing.css')}}">
 <body>
 
 <h1>Portal medyczny Jerzego Zięby</h1>
@@ -10,14 +11,22 @@
 </form>
 {{ header }}
 {% for patient in patients %}
+<table class="patient">
     <p> Patient: {{ patient.name}} {{patient.surname}} </p>
     {% for procedure in patient.procedures %}
         {% if procedure.type == 'short' %}
-        <p>--- {{procedure.startDate}}: {{procedure.name}}</p>
+        <tr>
+            <th>{{procedure.startDate}}:</th>
+            <th>{{procedure.name}}</th>
+        </tr>
         {% else %}
-        <p>--- {{procedure.startDate}}: {{procedure.name}}</p>
+        <tr>
+            <th>{{procedure.startDate}}:</th>
+            <th>{{procedure.name}}</th>
+        </tr>
         {% endif %}
     {% endfor %}
+</table>
 {% endfor %}
 
 </body>
