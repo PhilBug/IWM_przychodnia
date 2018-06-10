@@ -6,7 +6,9 @@ from fhirclient.models.medication import Medication
 from fhirclient.models.medicationrequest import MedicationRequest
 import fhirclient.models.patient as pat
 import fhirclient.models.procedure as proc
-from flask import Flask, request, redirect, session
+import fhirclient.models.fhirdate as date
+from flask import Flask, request, redirect, session, render_template
+
 
 # app setup
 smart_defaults = {
@@ -16,6 +18,15 @@ smart_defaults = {
 }
 
 app = Flask(__name__)
+
+def resolveData(p):
+    try:
+        date = p.performedPeriod.start.date
+        p_type = 'long'
+    except:
+        date = p.performedDateTime.date
+        p_type = 'short'
+    return date, p_type
 
 def _save_state(state):
     session['state'] = state
@@ -68,29 +79,44 @@ def _get_med_name(prescription, client=None):
         return 'Error: medication not found'
 
 
-@app.route('/')
-@app.route('/index.html')
+@app.route('/', methods=['POST', "GET"])
+@app.route('/index.html', methods=['POST', "GET"])
 def index():
+    passed_patients = []
     smart = _get_smart()
-    body = ''
-    body += "<h1>Portal medyczny Jerzego Zięby</h1>"
-    body += "<h2>Lista ofiar szczepionek:</h2>"
     patient = pat.Patient.read('06eb35fc-09e6-48b4-a311-47633f6c4769', smart.server)
-    # while not smart.ready:
-    #     pass
+    if request.method == 'POST' and request.form['text'] != '':
+        header = "Results for name: " + request.form['text']
+        search = pat.Patient.where(struct={'family': request.form['text'].strip()})
+        patients = search.perform_resources(smart.server)
+        patients = [a for a in patients if a.name[0].family == request.form['text'].strip()]
+        for i, patient in enumerate(patients):
+            search_proc = proc.Procedure.where(struct={'patient': patient.id})
+            procedures = search_proc.perform_resources(smart.server)
+            patients[i] = (patient, procedures)
+            passed_patients.append({
+                'name': patient.name[0].family,
+                'surname': patient.name[0].given[0],
+                'procedures': [{
+                    'name': p.extension[0].valueCodeableConcept.coding[0].display,
+                    'startDate': resolveData(p)[0],
+                    'type': resolveData(p)[1],
+                    'id': p.id
+                } for p in procedures]
+            })
+            for p in procedures:
+                print(p.as_json())
 
-    # print(smart.ready, smart.patient)
-    # body += "<p>Name: {0}</p>".format(smart.human_name(patient.name[0]))
-    # body += "<p>Gender: {0}</p>".format(patient.gender)
-
-    search = pat.Patient.where(struct={'gender': 'male'})
-    procedures = search.perform_resources(smart.server)
-    for procedure in procedures:
-        #your_json = procedure.as_json()
-        #body += "<p>{0}</p>".format(json.dumps(your_json, indent=2, sort_keys=True))
-        #body += "<p>Patient: {0} {1}</p>".format(your_json['name'][0]['given'][0], your_json['name'][0]['family'])
-        body += "<p>Patient: {0} {1}</p>".format(procedure.name[0].family, procedure.name[0].given[0])
-    return body
+        return render_template('index.html', patients=passed_patients, header=header)
+    else:
+        header = "Displaying male patients"
+        search = pat.Patient.where(struct={'gender': 'male'})
+        patients = search.perform_resources(smart.server)
+        for i, patient in enumerate(patients):
+            search_proc = proc.Procedure.where(struct={'patient': patient.id})
+            procedures = search_proc.perform_resources(smart.server)
+            patients[i] = (patient, procedures)
+        return render_template('index.html', patients=patients, header=header)
 
 
 @app.route('/fhir-app/')

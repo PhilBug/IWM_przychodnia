@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<body>
+
+<h1>Portal medyczny Jerzego Zięby</h1>
+<h2>Lista ofiar szczepionek:</h2>
+<form method="POST">
+    <input name="text">
+    <input type="submit" value="Search">
+</form>
+{{ header }}
+{% for patient in patients %}
+    <p> Patient: {{ patient.name}} {{patient.surname}} </p>
+    {% for procedure in patient.procedures %}
+        {% if procedure.type == 'short' %}
+        <p>--- {{procedure.startDate}}: {{procedure.name}}</p>
+        {% else %}
+        <p>--- Start at: {{procedure.startDate}}: {{procedure.name}}</p>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+</body>
+</html>
