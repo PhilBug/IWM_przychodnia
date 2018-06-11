@@ -102,12 +102,21 @@ def index():
     if request.method == 'POST' and request.form['text'] != '':
         header = "Results for name: " + request.form['text']
         full_name = request.form['text'].split(' ')
-        search = pat.Patient.where(struct={'family': full_name[1], 'given':  full_name[0]})
-        patients = search.perform_resources(smart.server)
-        if len(patients) == 0:
-            search = pat.Patient.where(struct={'family': full_name[0], 'given': full_name[1]})
+        full_name = [a.strip() for a in full_name]
+        if len(full_name) == 2:
+            search = pat.Patient.where(struct={'family': full_name[1], 'given':  full_name[0]})
             patients = search.perform_resources(smart.server)
-        patients = [a for a in patients if a.name[0].family == full_name[1] or a.name[0].family == full_name[0]]
+            if len(patients) == 0:
+                search = pat.Patient.where(struct={'family': full_name[0], 'given': full_name[1]})
+                patients = search.perform_resources(smart.server)
+            patients = [a for a in patients if a.name[0].family == full_name[1] or a.name[0].family == full_name[0]]
+        if len(full_name) == 1:
+            search = pat.Patient.where(struct={'family': full_name[0]})
+            patients = search.perform_resources(smart.server)
+            if len(patients) == 0:
+                search = pat.Patient.where(struct={'given': full_name[0]})
+                patients = search.perform_resources(smart.server)
+            patients = [a for a in patients if a.name[0].given[0] == full_name[0] or a.name[0].family == full_name[0]]
     else:
         header = "List of patients"
         search = pat.Patient.where(struct={})
