@@ -12,7 +12,7 @@
 {{ header }}
 {% for patient in patients %}
 <table class="patient">
-    <p> Patient: {{ patient.name}} {{patient.surname}} </p>
+    <p class="patient_name"> Patient: {{ patient.name}} {{patient.surname}} </p>
     {% for procedure in patient.procedures %}
         {% if procedure.type == 'short' %}
         <tr>

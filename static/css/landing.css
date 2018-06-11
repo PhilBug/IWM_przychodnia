@@ -1,9 +1,29 @@
 body {
-    font-family: "Comic Sans MS";
+    background-color: black;
+    font-family: Courier;
+    color: lawngreen;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+h1, h2 {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+table, th, td {
+    border: 1px solid lawngreen;
 }
 
 .patient {
     margin-left: auto;
     margin-right: auto;
     width: 70%;
+}
+.patient_name{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }

@@ -93,7 +93,7 @@ def index():
         for i, patient in enumerate(patients):
             search_proc = proc.Procedure.where(struct={'patient': patient.id})
             procedures = search_proc.perform_resources(smart.server)
-            patients[i] = (patient, procedures)
+
             passed_patients.append({
                 'name': patient.name[0].family,
                 'surname': patient.name[0].given[0],
