@@ -6,13 +6,16 @@
 <h1>Portal medyczny Jerzego Zięby</h1>
 <h2>Lista ofiar szczepionek:</h2>
 <form method="POST">
-    <input name="text">
-    <input type="submit" value="Search">
+    <input name="text" class="input_text">
+    <input type="submit" value="Search" class="input_button">
 </form>
 {{ header }}
 {% for patient in patients %}
 <table class="patient">
     <p class="patient_name"> Patient: {{ patient.name}} {{patient.surname}} </p>
+    <tr>
+            <th  colspan="2">Procedures:</th>
+    </tr>
     {% for procedure in patient.procedures %}
         {% if procedure.type == 'short' %}
         <tr>
@@ -25,6 +28,24 @@
             <th>{{procedure.name}}</th>
         </tr>
         {% endif %}
+    {% endfor %}
+    <tr>
+        <th  colspan="2">Observations:</th>
+    </tr>
+    {% for observation in patient.observations %}
+        <tr>
+            <th>{{observation.startDate}}</th>
+            <th>{{observation.name}}: {{observation.value}} {{observation.units}}</th>
+        </tr>
+    {% endfor %}
+    <tr>
+        <th  colspan="2">Medication requests:</th>
+    </tr>
+    {% for observation in patient.med_requests %}
+        <tr>
+            <th>{{observation.startDate}}</th>
+            <th>{{observation.name}}</th>
+        </tr>
     {% endfor %}
 </table>
 {% endfor %}

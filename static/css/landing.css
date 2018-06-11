@@ -22,8 +22,14 @@ table, th, td {
     margin-right: auto;
     width: 70%;
 }
-.patient_name{
+.patient_name {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+}
+
+.input_text, .input_button {
+    background-color: black;
+    color: lawngreen;
+    border: 1px solid lawngreen;
 }
